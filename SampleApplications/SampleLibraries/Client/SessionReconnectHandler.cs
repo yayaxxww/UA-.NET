@@ -2,7 +2,7 @@
  * Copyright (c) 2005-2017 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -11,7 +11,7 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -28,10 +28,7 @@
  * ======================================================================*/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
-using Opc.Ua;
 
 namespace Opc.Ua.Client
 {
@@ -39,7 +36,7 @@ namespace Opc.Ua.Client
     /// Attempts to reconnect to the server.
     /// </summary>
     public class SessionReconnectHandler : IDisposable
-    {        
+    {
         #region IDisposable Members
         /// <summary>
         /// Frees any unmanaged resources.
@@ -66,8 +63,8 @@ namespace Opc.Ua.Client
                 }
             }
         }
-        #endregion       
-                
+        #endregion
+
         #region Public Methods
         /// <summary>
         /// Gets the session managed by the handler.
@@ -94,7 +91,7 @@ namespace Opc.Ua.Client
                 m_reconnectFailed = false;
                 m_reconnectPeriod = reconnectPeriod;
                 m_callback = callback;
-                m_reconnectTimer = new System.Threading.Timer(OnReconnect, null, reconnectPeriod, reconnectPeriod);
+                m_reconnectTimer = new System.Threading.Timer(OnReconnect, null, reconnectPeriod, Timeout.Infinite);
             }
         }
         #endregion
@@ -105,11 +102,6 @@ namespace Opc.Ua.Client
         /// </summary>
         private void OnReconnect(object state)
         {
-            if (Interlocked.CompareExchange(ref m_signal, 1, 0) != 0)
-            {
-                return;
-            }
-
             try
             {
                 // check for exit.
@@ -140,7 +132,13 @@ namespace Opc.Ua.Client
             }
             finally
             {
-                Interlocked.Exchange(ref m_signal, 0);
+                lock (m_lock)
+                {
+                    if (m_reconnectTimer != null)
+                    {
+                        m_reconnectTimer.Change(m_reconnectPeriod, Timeout.Infinite);
+                    }
+                }
             }
         }
 
@@ -198,7 +196,6 @@ namespace Opc.Ua.Client
         #endregion
 
         #region Private Fields
-        private int m_signal;
         private object m_lock = new object();
         private Session m_session;
         private bool m_reconnectFailed;

@@ -5532,7 +5532,7 @@ namespace Opc.Ua
         /// <summary>
         /// A description for the DeleteFileMethodType Method.
         /// </summary>
-        public DeleteFileMethodState Delete
+        public DeleteFileMethodState DeleteFile
         {
             get
             {
@@ -5669,20 +5669,20 @@ namespace Opc.Ua
                 {
                     if (createOrReplace)
                     {
-                        if (Delete == null)
+                        if (DeleteFile == null)
                         {
                             if (replacement == null)
                             {
-                                Delete = new DeleteFileMethodState(this);
+                                DeleteFile = new DeleteFileMethodState(this);
                             }
                             else
                             {
-                                Delete = (DeleteFileMethodState)replacement;
+                                DeleteFile = (DeleteFileMethodState)replacement;
                             }
                         }
                     }
 
-                    instance = Delete;
+                    instance = DeleteFile;
                     break;
                 }
 

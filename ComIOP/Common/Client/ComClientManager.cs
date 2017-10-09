@@ -304,7 +304,7 @@ namespace Opc.Ua.Com.Client
                 // check if the last status updates appear to be hanging.
                 bool reconnected = false;
 
-                if (m_lastStatusUpdate.AddMilliseconds(m_statusUpdateInterval*1.1) < DateTime.UtcNow)
+                if (m_lastStatusUpdate.AddMilliseconds(m_statusUpdateInterval * 2 + 1000) < DateTime.UtcNow)
                 {
                     if (m_reconnecting)
                     {

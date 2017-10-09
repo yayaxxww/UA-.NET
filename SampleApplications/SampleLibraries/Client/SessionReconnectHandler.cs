@@ -105,6 +105,11 @@ namespace Opc.Ua.Client
         /// </summary>
         private void OnReconnect(object state)
         {
+            if (Interlocked.CompareExchange(ref m_signal, 1, 0) != 0)
+            {
+                return;
+            }
+
             try
             {
                 // check for exit.
@@ -132,6 +137,10 @@ namespace Opc.Ua.Client
             catch (Exception exception)
             {
                 Utils.Trace(exception, "Unexpected error during reconnect.");
+            }
+            finally
+            {
+                Interlocked.Exchange(ref m_signal, 0);
             }
         }
 
@@ -189,6 +198,7 @@ namespace Opc.Ua.Client
         #endregion
 
         #region Private Fields
+        private int m_signal;
         private object m_lock = new object();
         private Session m_session;
         private bool m_reconnectFailed;

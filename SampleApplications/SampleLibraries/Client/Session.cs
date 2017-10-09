@@ -254,7 +254,7 @@ namespace Opc.Ua.Client
             m_latestAcknowledgementsSent = new Dictionary<uint, uint>();
             m_identityHistory       = new List<IUserIdentity>();
             m_outstandingRequests   = new LinkedList<AsyncRequestState>();
-            m_keepAliveInterval     = 5000;
+            m_keepAliveInterval     = 10000;
             
             m_defaultSubscription = new Subscription();
 
@@ -609,11 +609,11 @@ namespace Opc.Ua.Client
             get
             {
                 lock (m_eventLock)
-                {   
+                {
                     long delta = DateTime.UtcNow.Ticks - m_lastKeepAliveTime.Ticks;
-                    
+
                     // add a 1000ms guard band to allow for network lag.
-                    return (m_keepAliveInterval*2)*TimeSpan.TicksPerMillisecond <= delta;              
+                    return (m_keepAliveInterval * 2 + 1000) * TimeSpan.TicksPerMillisecond <= delta;
                 }
             }
         }
@@ -840,7 +840,8 @@ namespace Opc.Ua.Client
 
                 for (int ii = 0; ii < domains.Count; ii++)
                 {
-                    if (String.Compare(hostname, domains[ii], StringComparison.InvariantCultureIgnoreCase) == 0)
+                    var hostEntry = System.Net.Dns.GetHostEntry(hostname);
+                    if (String.Compare(hostEntry.HostName, domains[ii], StringComparison.InvariantCultureIgnoreCase) == 0)
                     {
                         domainFound = true;
                         break;
@@ -1922,7 +1923,7 @@ namespace Opc.Ua.Client
             IUserIdentity identity,
             IList<string> preferredLocales)
         {
-            Open(sessionName, sessionTimeout, identity, preferredLocales, true);
+            Open(sessionName, sessionTimeout, identity, preferredLocales, false);
         }
 
         /// <summary>

@@ -122,7 +122,7 @@ namespace Opc.Ua.Com.Client
 
                 if (availableLocales != null)
                 {
-                    lock (Server.DiagnosticsLock)
+                    lock (Server.DiagnosticsNodeManager.Lock)
                     {
                         // check if the server is running.
                         if (!Server.IsRunning)
